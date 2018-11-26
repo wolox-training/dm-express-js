@@ -1,3 +1,5 @@
+const errors = require('../errors');
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
@@ -27,8 +29,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  User.associate = function(models) {
-    // associations can be defined here
+  User.associate = function(models) {};
+
+  User.createModel = user => {
+    return User.create(user).catch(error => {
+      throw errors.createUserError(error.errors);
+    });
   };
+
   return User;
 };
