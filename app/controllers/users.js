@@ -1,6 +1,6 @@
 const logger = require('../logger'),
   bcrypt = require('bcryptjs'),
-  User = require('../models').User;
+  User = require('../models').users;
 
 const createUser = (firstName = '', lastName = '', email = '', password = '') => {
   return {
@@ -41,8 +41,8 @@ exports.create = (request, response, next) => {
         response.status(200).send(userCreated);
       })
       .catch(error => {
-        error.message.unshift(...validationErrors);
-        logger.error(error);
+        validationErrors.push(error.message);
+        error.message = validationErrors;
         response.status(400).send(error);
       });
   });
