@@ -1,6 +1,7 @@
 const logger = require('../logger'),
   bcrypt = require('bcryptjs'),
-  User = require('../models').users;
+  User = require('../models').users,
+  errors = require('../errors');
 
 const createUser = (firstName = '', lastName = '', email = '', password = '') => {
   return {
@@ -32,7 +33,11 @@ exports.create = (request, response, next) => {
   else if (!regexPassword.test(password))
     validationErrors.push(`The password is invalid. It must be alphanumeric and a minimum of 8 characters`);
 
+  if (validationErrors.length > 0)
+    return response.status(400).send(errors.invalidUserError(validationErrors));
+
   const user = createUser(firstName, lastName, email, password);
+
   bcrypt.hash(user.password, saltRounds).then(hash => {
     user.password = hash;
     User.createModel(user)
@@ -41,8 +46,6 @@ exports.create = (request, response, next) => {
         response.status(200).send(userCreated);
       })
       .catch(error => {
-        validationErrors.push(error.message);
-        error.message = validationErrors;
         response.status(400).send(error);
       });
   });

@@ -8,6 +8,9 @@ const internalError = (message, internalCode) => ({
 exports.DEFAULT_ERROR = 'default_error';
 exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 
+exports.INVALID_USER_ERROR = 'invalid_user_error';
+exports.invalidUserError = messages => internalError(messages, exports.INVALID_USER_ERROR);
+
 exports.CREATE_USER_ERROR = 'create_user_error';
 exports.createUserError = error => {
   logger.error(error.original);
