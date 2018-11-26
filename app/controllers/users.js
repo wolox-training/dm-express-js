@@ -1,7 +1,6 @@
 const logger = require('../logger'),
   bcrypt = require('bcryptjs'),
-  User = require('../models').User,
-  errors = require('../errors');
+  User = require('../models').User;
 
 const createUser = (firstName = '', lastName = '', email = '', password = '') => {
   return {
