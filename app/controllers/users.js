@@ -3,15 +3,6 @@ const logger = require('../logger'),
   User = require('../models').users,
   errors = require('../errors');
 
-const createUser = (firstName = '', lastName = '', email = '', password = '') => {
-  return {
-    firstName,
-    lastName,
-    email,
-    password
-  };
-};
-
 exports.create = (request, response, next) => {
   const saltRounds = 10;
   const regexWoloxMail = /[\w\d._]+@wolox[\w.]+/;
@@ -36,7 +27,7 @@ exports.create = (request, response, next) => {
   if (validationErrors.length > 0)
     return response.status(400).send(errors.invalidUserError(validationErrors));
 
-  const user = createUser(firstName, lastName, email, password);
+  const user = { firstName, lastName, email, password };
 
   bcrypt.hash(user.password, saltRounds).then(hash => {
     user.password = hash;
