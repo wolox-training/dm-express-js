@@ -1,4 +1,5 @@
-const errors = require('../errors');
+const errors = require('../errors'),
+  bcrypt = require('bcryptjs');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -29,7 +30,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       }
     },
-    {}
+    {
+      hooks: {
+        beforeCreate: (user, options) => {
+          bcrypt.hash(user.password, 10).then(hash => {
+            user.password = hash;
+          });
+        }
+      }
+    }
   );
 
   User.createModel = user => {
@@ -37,6 +46,8 @@ module.exports = (sequelize, DataTypes) => {
       throw errors.createUserError(error);
     });
   };
+
+  User.findByEmail = email => User.findOne({ where: { email } });
 
   return User;
 };
