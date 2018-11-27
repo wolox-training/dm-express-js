@@ -48,5 +48,5 @@ node_modules
 # VS Code
 .vscode/
 
-# Documets
-docs
+# Documents
+docs/*
