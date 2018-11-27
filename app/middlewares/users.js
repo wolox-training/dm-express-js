@@ -1,6 +1,7 @@
 const errors = require('../errors'),
   logger = require('../logger'),
-  User = require('../models').users;
+  User = require('../models').users,
+  errorMessage = require('../../config').common.errorMessage;
 
 const regexWoloxMail = /[\w\d._]+@wolox[\w.]+/;
 
@@ -17,11 +18,10 @@ exports.validate = (request, response, next) => {
   if (!lastName) addError('lastName');
 
   if (!email) addError('email');
-  else if (!regexWoloxMail.test(email)) validationErrors.push(`The email has an invalid format`);
+  else if (!regexWoloxMail.test(email)) validationErrors.push(errorMessage.invalidEmail);
 
   if (!password) addError('password');
-  else if (!regexPassword.test(password))
-    validationErrors.push(`The password is invalid. It must be alphanumeric and a minimum of 8 characters`);
+  else if (!regexPassword.test(password)) validationErrors.push(errorMessage.invalidPassword);
 
   request.validationErrors = validationErrors;
   request.user = { firstName, lastName, email, password };
@@ -31,7 +31,7 @@ exports.validate = (request, response, next) => {
 exports.checkUniqueEmail = (request, response, next) => {
   User.findByEmail(request.user.email)
     .then(user => {
-      if (user !== null) request.validationErrors.push('The email must be unique');
+      if (user !== null) request.validationErrors.push(errorMessage.uniqueEmail);
       if (request.validationErrors.length > 0)
         response.status(400).send(errors.createUserError(request.validationErrors));
       else next();
