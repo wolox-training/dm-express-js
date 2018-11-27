@@ -2,8 +2,9 @@ const errors = require('../errors'),
   logger = require('../logger'),
   User = require('../models').users;
 
+const regexWoloxMail = /[\w\d._]+@wolox[\w.]+/;
+
 exports.validate = (request, response, next) => {
-  const regexWoloxMail = /[\w\d._]+@wolox[\w.]+/;
   const regexPassword = /[\w\d]{8,}/;
 
   const { firstName, lastName, email, password } = request.body;
@@ -39,4 +40,14 @@ exports.checkUniqueEmail = (request, response, next) => {
       logger.error(error);
       response.status(400).send(errors.defaultError('User creation fail'));
     });
+};
+
+exports.validateLogIn = (request, response, next) => {
+  const { email, password } = request.body;
+  request.errors = [];
+  if (!email) request.errors.push('The email is required');
+  else if (!regexWoloxMail.test(email)) request.errors.push(`The email has an invalid format`);
+  if (!password) request.errors.push('The password is required');
+  if (request.errors.length > 0) return response.status(400).send(request.errors);
+  next();
 };
