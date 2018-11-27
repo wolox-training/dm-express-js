@@ -18,21 +18,27 @@ exports.create = ({ user }, response, next) => {
 
 exports.authenticate = (request, response, next) => {
   const { email, password } = request.body;
-  User.findByEmail(email).then(user => {
-    if (user) {
-      bcrypt.compare(password, user.password).then(isValid => {
-        if (isValid) {
-          const authentification = sessionManager.encode({ email: user.email });
-          response
-            .status(200)
-            .set(sessionManager.HEADER_NAME, authentification)
-            .send(user);
-        } else {
-          response.status(400).send('The password is not correct');
-        }
-      });
-    } else {
-      response.status(400).send('The email is not correct');
-    }
-  });
+  User.findByEmail(email)
+    .then(user => {
+      if (user) {
+        bcrypt.compare(password, user.password).then(isValid => {
+          if (isValid) {
+            const authentification = sessionManager.encode({ email: user.email });
+            response
+              .status(200)
+              .set(sessionManager.HEADER_NAME, authentification)
+              .send(user);
+            logger.info(`The user with email ${user.email} is now logged`);
+          } else {
+            response.status(400).send(errors.authentificationError(['The password is not correct']));
+          }
+        });
+      } else {
+        response.status(400).send(errors.authentificationError(['The email is not correct']));
+      }
+    })
+    .catch(error => {
+      logger.error(error);
+      response.status(400).send('Unexpected data base error');
+    });
 };
