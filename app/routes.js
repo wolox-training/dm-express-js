@@ -1,7 +1,6 @@
-// const controller = require('./controllers/controller');
+const users = require('./controllers/users'),
+  user = require('./middlewares/users');
 
 exports.init = app => {
-  // app.get('/endpoint/get/path', [], controller.methodGET);
-  // app.put('/endpoint/put/path', [], controller.methodPUT);
-  // app.post('/endpoint/post/path', [], controller.methodPOST);
+  app.post('/users', [user.validate, user.checkUniqueEmail], users.create);
 };

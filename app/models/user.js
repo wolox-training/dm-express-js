@@ -1,6 +1,9 @@
+const errors = require('../errors'),
+  bcrypt = require('bcryptjs');
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'User',
+    'users',
     {
       id: {
         type: DataTypes.INTEGER,
@@ -8,10 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true
       },
       firstName: {
+        field: 'first_name',
         type: DataTypes.STRING,
         allowNull: false
       },
       lastName: {
+        field: 'last_name',
         type: DataTypes.STRING,
         allowNull: false
       },
@@ -25,7 +30,24 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       }
     },
-    {}
+    {
+      hooks: {
+        beforeCreate: (user, options) => {
+          bcrypt.hash(user.password, 10).then(hash => {
+            user.password = hash;
+          });
+        }
+      }
+    }
   );
+
+  User.createModel = user => {
+    return User.create(user).catch(error => {
+      throw errors.createUserError(error);
+    });
+  };
+
+  User.findByEmail = email => User.findOne({ where: { email } });
+
   return User;
 };
