@@ -48,6 +48,7 @@ exports.validateLogIn = (request, response, next) => {
   if (!email) request.errors.push('The email is required');
   else if (!regexWoloxMail.test(email)) request.errors.push(`The email has an invalid format`);
   if (!password) request.errors.push('The password is required');
-  if (request.errors.length > 0) return response.status(400).send(request.errors);
+  if (request.errors.length > 0)
+    return response.status(400).send(errors.authentificationError(request.errors));
   next();
 };
