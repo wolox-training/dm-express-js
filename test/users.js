@@ -80,6 +80,25 @@ describe('users', () => {
           done();
         });
     });
+    it('should fail because password have special characters', done => {
+      chai
+        .request(server)
+        .post('/users')
+        .send({
+          firstName: 'firstName',
+          lastName: 'lastName',
+          password: 'invalid$%@pw',
+          email: 'email@wolox.co'
+        })
+        .end(err => {
+          validateError({
+            actualError: err,
+            expectedMessage: 'The password is invalid. It must be alphanumeric and a minimum of 8 characters',
+            expectedInternalCode: errors.CREATE_USER_ERROR
+          });
+          done();
+        });
+    });
     it('should fail because first name is missing', done => {
       chai
         .request(server)
