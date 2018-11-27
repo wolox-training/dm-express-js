@@ -34,7 +34,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The email has an invalid format',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
@@ -75,7 +75,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The password is invalid. It must be alphanumeric and a minimum of 8 characters',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
@@ -93,7 +93,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The firstName is required',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
@@ -112,7 +112,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The lastName is required',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
@@ -131,7 +131,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The password is required',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
@@ -150,7 +150,7 @@ describe('users', () => {
           validateError({
             actualError: err,
             expectedMessage: 'The email is required',
-            expectedInternalCode: errors.INVALID_USER_ERROR
+            expectedInternalCode: errors.CREATE_USER_ERROR
           });
           done();
         });
