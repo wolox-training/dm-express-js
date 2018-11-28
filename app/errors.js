@@ -10,3 +10,6 @@ exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 
 exports.CREATE_USER_ERROR = 'create_user_error';
 exports.createUserError = messages => internalError(messages, exports.CREATE_USER_ERROR);
+
+exports.AUTHENTICATION_ERROR = 'authentication_error';
+exports.authenticationError = messages => internalError(messages, exports.AUTHENTICATION_ERROR);

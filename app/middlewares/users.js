@@ -1,10 +1,9 @@
 const errors = require('../errors'),
   logger = require('../logger'),
   User = require('../models').users,
-  errorMessage = require('../../config').common.errorMessage;
+  { errorMessage, business } = require('../../config').common;
 
 exports.validate = (request, response, next) => {
-  const regexWoloxMail = /[\w\d._]+@wolox[\w.]+/;
   const regexPassword = /[\w\d]{8,}/;
 
   const { firstName, lastName, email, password } = request.body;
@@ -17,7 +16,7 @@ exports.validate = (request, response, next) => {
   if (!lastName) addError('lastName');
 
   if (!email) addError('email');
-  else if (!regexWoloxMail.test(email)) validationErrors.push(errorMessage.invalidEmail);
+  else if (!business.regexWoloxEmail.test(email)) validationErrors.push(errorMessage.invalidEmail);
 
   if (!password) addError('password');
   else if (!regexPassword.test(password)) validationErrors.push(errorMessage.invalidPassword);
