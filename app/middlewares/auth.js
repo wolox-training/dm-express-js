@@ -1,5 +1,6 @@
 const errors = require('../errors'),
   sessionManager = require('../services/sessionManager'),
+  User = require('../models').users,
   { regexWoloxEmail } = require('../../config').common.business;
 
 exports.validateCredentials = (request, response, next) => {
@@ -12,12 +13,15 @@ exports.validateCredentials = (request, response, next) => {
   next();
 };
 
-exports.checkAlreadyLogged = (request, response, next) => {
+exports.authentified = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
-    const { email, password } = sessionManager.decode(token);
-    if (email === request.body.email && password === request.body.password)
-      return response.status(400).send(errors.authenticationError(['User already logged']));
+    const { email } = sessionManager.decode(token);
+    User.findByEmail(email).then(user => {
+      if (user) request.user = user;
+      next();
+    });
+  } else {
+    next();
   }
-  next();
 };
