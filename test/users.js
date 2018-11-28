@@ -171,4 +171,47 @@ describe('users', () => {
         .then(() => done());
     });
   });
+  describe('/users GET', () => {
+    it('should fail because the user is not logged', done => {
+      chai
+        .request(server)
+        .get('/users')
+        .send()
+        .catch(error => {
+          error.should.have.status(400);
+          error.response.should.be.json;
+          error.response.body.should.have.property('message');
+          error.response.body.should.have.property('internalCode');
+          const { message, internalCode } = error.response.body;
+          message[0].should.equal('You must be logged to see all users');
+          internalCode.should.equal(errors.AUTHENTICATION_ERROR);
+        })
+        .then(() => done());
+    });
+    const getAll = (offset, limit) =>
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email: 'unique@wolox.co', password: '123456789' })
+        .then(res => {
+          chai
+            .request(server)
+            .get('/users')
+            .set(sessionManager.HEADER_NAME, res.headers[sessionManager.HEADER_NAME])
+            .send({ offset, limit })
+            .then(response => {
+              response.should.have.status(200);
+              response.body.should.be.a('array');
+              response.body.should.have.lengthOf(limit);
+              dictum.chai(response);
+            });
+        });
+
+    it('should sucess and return an array with default limit of two', done => {
+      getAll(0, 2).then(() => done());
+    });
+    it('should sucess and return an array with limit of one', done => {
+      getAll(0, 1).then(() => done());
+    });
+  });
 });
