@@ -104,7 +104,7 @@ describe('users', () => {
     });
   });
   describe('/users/sessions POST', () => {
-    const sendAndTest = buildTest('/users/sessions', errors.AUTHENTIFICATION_ERROR);
+    const sendAndTest = buildTest('/users/sessions', errors.AUTHENTICATION_ERROR);
 
     it('should fail because email is missing', done => {
       const data = { password: '123456789' };
@@ -129,6 +129,28 @@ describe('users', () => {
     it('should fail because password does not match with the email', done => {
       const data = { email: 'unique@wolox.co', password: 'dontmatch' };
       sendAndTest(data, 'The password is not correct').then(() => done());
+    });
+
+    it('should fail because user is already logged', done => {
+      const data = { email: 'unique@wolox.co', password: '123456789' };
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send(data)
+        .then(res => {
+          chai
+            .request(server)
+            .post('/users/sessions')
+            .set(sessionManager.HEADER_NAME, res.headers[sessionManager.HEADER_NAME])
+            .send(data)
+            .catch(error => {
+              error.should.have.status(400);
+              const { message, internalCode } = error.response.body;
+              message[0].should.equal('User already logged');
+              internalCode.should.equal(errors.AUTHENTICATION_ERROR);
+            });
+        })
+        .then(() => done());
     });
 
     it('should be sucessful when email and password are OK', done => {
