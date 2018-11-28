@@ -13,7 +13,7 @@ exports.validateCredentials = (request, response, next) => {
   next();
 };
 
-exports.authentified = (request, response, next) => {
+exports.authenticated = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
     const { email } = sessionManager.decode(token);
