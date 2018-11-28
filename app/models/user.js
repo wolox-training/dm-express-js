@@ -49,5 +49,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.findByEmail = email => User.findOne({ where: { email } });
 
+  User.findUsers = (offset = 0, limit = 2) => User.findAll({ offset, limit });
+
   return User;
 };
