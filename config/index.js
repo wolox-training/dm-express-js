@@ -48,6 +48,11 @@ const config = {
     rollbar: {
       accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
       environment: process.env.ROLLBAR_ENV
+    },
+    errorMessage: {
+      invalidPassword: 'The password is invalid. It must be alphanumeric and a minimum of 8 characters',
+      uniqueEmail: 'The email must be unique',
+      invalidEmail: 'The email has an invalid format'
     }
   }
 };
