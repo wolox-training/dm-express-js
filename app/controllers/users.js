@@ -23,18 +23,18 @@ exports.authenticate = (request, response, next) => {
       if (user) {
         bcrypt.compare(password, user.password).then(isValid => {
           if (isValid) {
-            const authentification = sessionManager.encode({ email: user.email });
+            const authentication = sessionManager.encode({ email, password });
             response
               .status(200)
-              .set(sessionManager.HEADER_NAME, authentification)
+              .set(sessionManager.HEADER_NAME, authentication)
               .send(user);
             logger.info(`The user with email ${user.email} is now logged`);
           } else {
-            response.status(400).send(errors.authentificationError(['The password is not correct']));
+            response.status(400).send(errors.authenticationError(['The password is not correct']));
           }
         });
       } else {
-        response.status(400).send(errors.authentificationError(['The email is not correct']));
+        response.status(400).send(errors.authenticationError(['The email is not correct']));
       }
     })
     .catch(error => {

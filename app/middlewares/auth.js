@@ -8,8 +8,7 @@ exports.validateCredentials = (request, response, next) => {
   if (!email) request.errors.push('The email is required');
   else if (!regexWoloxEmail.test(email)) request.errors.push(`The email has an invalid format`);
   if (!password) request.errors.push('The password is required');
-  if (request.errors.length > 0)
-    return response.status(400).send(errors.authentificationError(request.errors));
+  if (request.errors.length > 0) return response.status(400).send(errors.authenticationError(request.errors));
   next();
 };
 
@@ -18,7 +17,7 @@ exports.checkAlreadyLogged = (request, response, next) => {
   if (token) {
     const { email, password } = sessionManager.decode(token);
     if (email === request.body.email && password === request.body.password)
-      return response.status(400).send(errors.authentificationError(['User already logged']));
+      return response.status(400).send(errors.authenticationError(['User already logged']));
   }
   next();
 };
