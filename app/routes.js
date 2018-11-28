@@ -4,5 +4,6 @@ const users = require('./controllers/users'),
 
 exports.init = app => {
   app.post('/users', [userMw.validate, userMw.checkUniqueEmail], users.create);
-  app.post('/users/sessions', [authMw.validateCredentials, authMw.checkAlreadyLogged], users.authenticate);
+  app.post('/users/sessions', [authMw.validateCredentials, authMw.authenticated], users.authenticate);
+  app.get('/users', [authMw.authenticated], users.getAll);
 };
