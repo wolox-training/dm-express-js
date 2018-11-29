@@ -2,6 +2,7 @@ const logger = require('../logger'),
   bcrypt = require('bcryptjs'),
   sessionManager = require('../services/sessionManager'),
   User = require('../models').users,
+  userMw = require('../middlewares/users'),
   errors = require('../errors');
 
 exports.create = ({ user }, response, next) => {
@@ -18,7 +19,7 @@ exports.create = ({ user }, response, next) => {
 
 exports.authenticate = (request, response, next) => {
   const { email, password } = request.body;
-  if (request.user && request.user.email === email)
+  if (request.userLogged && request.userLogged.email === email)
     return response.status(400).send(errors.authenticationError(['User already logged']));
   User.findByEmail(email)
     .then(user => {
@@ -46,7 +47,7 @@ exports.authenticate = (request, response, next) => {
 };
 
 exports.getAll = (request, response, next) => {
-  if (!request.user)
+  if (!request.userLogged)
     return response.status(400).send(errors.authenticationError(['You must be logged to see all users']));
   const { offset, limit } = request.body;
   User.findUsers(offset, limit)
@@ -55,6 +56,27 @@ exports.getAll = (request, response, next) => {
     })
     .catch(error => {
       logger.error(error);
-      response.status(400).send('Unexpected data base error');
+      response.status(400).send(errors.defaultError('Unexpected data base error'));
     });
+};
+
+exports.createAdmin = (request, response) => {
+  if (request.validationErrors.length > 0)
+    return response.status(400).send(errors.createUserError(request.validationErrors));
+  User.findByEmail(request.body.email).then(user => {
+    if (user) {
+      request.user.isAdmin = true;
+      User.updateUser(request.user)
+        .then(users => {
+          response.status(200).send('User updated successfully');
+        })
+        .catch(error => {
+          logger.error(error);
+          response.status(400).send(errors.createUserError('Unexpected data base error'));
+        });
+    } else {
+      request.user.isAdmin = true;
+      exports.create(request, response);
+    }
+  });
 };
