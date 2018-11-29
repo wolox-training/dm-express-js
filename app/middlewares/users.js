@@ -22,7 +22,7 @@ exports.validate = (request, response, next) => {
   else if (!regexPassword.test(password)) validationErrors.push(errorMessage.invalidPassword);
 
   request.validationErrors = validationErrors;
-  request.user = { firstName, lastName, email, password };
+  request.user = { firstName, lastName, email, password, isAdmin: false };
   next();
 };
 
