@@ -14,6 +14,22 @@ exports.execute = () => {
           password: hash
         })
       );
+      data.push(
+        User.createModel({
+          firstName: 'firstName2',
+          lastName: 'lastName2',
+          email: 'unique2@wolox.co',
+          password: hash
+        })
+      );
+      data.push(
+        User.createModel({
+          firstName: 'firstName3',
+          lastName: 'lastName3',
+          email: 'unique3@wolox.co',
+          password: hash
+        })
+      );
       return Promise.all(data);
     })
     .catch(bcryptErr => {

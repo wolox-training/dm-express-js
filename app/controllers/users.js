@@ -18,6 +18,8 @@ exports.create = ({ user }, response, next) => {
 
 exports.authenticate = (request, response, next) => {
   const { email, password } = request.body;
+  if (request.user && request.user.email === email)
+    return response.status(400).send(errors.authenticationError(['User already logged']));
   User.findByEmail(email)
     .then(user => {
       if (user) {
@@ -36,6 +38,20 @@ exports.authenticate = (request, response, next) => {
       } else {
         response.status(400).send(errors.authenticationError(['The email is not correct']));
       }
+    })
+    .catch(error => {
+      logger.error(error);
+      response.status(400).send('Unexpected data base error');
+    });
+};
+
+exports.getAll = (request, response, next) => {
+  if (!request.user)
+    return response.status(400).send(errors.authenticationError(['You must be logged to see all users']));
+  const { offset, limit } = request.body;
+  User.findUsers(offset, limit)
+    .then(users => {
+      response.status(200).send(users);
     })
     .catch(error => {
       logger.error(error);
