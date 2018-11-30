@@ -39,13 +39,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       hooks: {
         beforeCreate: (user, options) => {
-          bcrypt.hash(user.password, 10).then(hash => {
+          return bcrypt.hash(user.password, 10).then(hash => {
             user.password = hash;
           });
         },
-        beforeUpdate: (user, options) => {
-          bcrypt.hash(user.password, 10).then(hash => {
-            user.password = hash;
+        beforeBulkUpdate: options => {
+          return bcrypt.hash(options.attributes.password, 10).then(hash => {
+            options.attributes.password = hash;
           });
         }
       }
