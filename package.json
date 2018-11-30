@@ -2,10 +2,6 @@
   "name": "dm-express-js",
   "version": "0.1.0",
   "description": "",
-  "engines": {
-    "node": "8.9.4",
-    "npm": "5.6.0"
-  },
   "scripts": {
     "console": "node console.js",
     "cover": "NODE_ENV=testing istanbul cover ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register test/app.js",
