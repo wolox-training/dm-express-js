@@ -13,3 +13,6 @@ exports.createUserError = messages => internalError(messages, exports.CREATE_USE
 
 exports.AUTHENTICATION_ERROR = 'authentication_error';
 exports.authenticationError = messages => internalError(messages, exports.AUTHENTICATION_ERROR);
+
+exports.BOOK_ERROR = 'book_error';
+exports.bookError = messages => internalError(messages, exports.BOOK_ERROR);
