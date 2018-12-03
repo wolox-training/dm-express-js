@@ -61,8 +61,6 @@ exports.getAll = (request, response, next) => {
 };
 
 exports.createAdmin = (request, response) => {
-  if (request.validationErrors.length > 0)
-    return response.status(400).send(errors.createUserError(request.validationErrors));
   User.findByEmail(request.body.email).then(user => {
     if (user) {
       request.user.isAdmin = true;

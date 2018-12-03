@@ -21,7 +21,7 @@ exports.validate = (request, response, next) => {
   if (!password) addError('password');
   else if (!regexPassword.test(password)) validationErrors.push(errorMessage.invalidPassword);
 
-  request.validationErrors = validationErrors;
+  if (validationErrors.length > 0) return response.status(400).send(errors.createUserError(validationErrors));
   request.user = { firstName, lastName, email, password, isAdmin: false };
   next();
 };
@@ -29,9 +29,7 @@ exports.validate = (request, response, next) => {
 exports.checkUniqueEmail = (request, response, next) => {
   User.findByEmail(request.user.email)
     .then(user => {
-      if (user !== null) request.validationErrors.push(errorMessage.uniqueEmail);
-      if (request.validationErrors.length > 0)
-        response.status(400).send(errors.createUserError(request.validationErrors));
+      if (user !== null) response.status(400).send(errors.createUserError([errorMessage.uniqueEmail]));
       else next();
     })
     .catch(error => {
