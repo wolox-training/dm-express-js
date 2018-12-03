@@ -1,6 +1,7 @@
 const errors = require('../errors'),
   sessionManager = require('../services/sessionManager'),
   User = require('../models').users,
+  userMW = require('./users'),
   { regexWoloxEmail } = require('../../config').common.business;
 
 exports.validateCredentials = (request, response, next) => {
@@ -16,12 +17,24 @@ exports.validateCredentials = (request, response, next) => {
 exports.authenticated = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
-    const { email } = sessionManager.decode(token);
-    User.findByEmail(email).then(user => {
-      if (user) request.user = user;
-      next();
-    });
+    try {
+      const { email } = sessionManager.decode(token);
+      User.findByEmail(email).then(user => {
+        if (user) request.userLogged = user;
+        next();
+      });
+    } catch (error) {
+      return response.status(400).send(errors.authenticationError(['The token is not valid']));
+    }
   } else {
     next();
   }
+};
+
+exports.requireAdmin = (request, response, next) => {
+  if (!request.userLogged || !request.userLogged.isAdmin)
+    return response
+      .status(400)
+      .send(errors.authenticationError(['You do not have permission to do this action']));
+  else next();
 };

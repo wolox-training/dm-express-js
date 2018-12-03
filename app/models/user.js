@@ -28,13 +28,24 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      isAdmin: {
+        field: 'is_admin',
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: false
       }
     },
     {
       hooks: {
         beforeCreate: (user, options) => {
-          bcrypt.hash(user.password, 10).then(hash => {
+          return bcrypt.hash(user.password, 10).then(hash => {
             user.password = hash;
+          });
+        },
+        beforeBulkUpdate: options => {
+          return bcrypt.hash(options.attributes.password, 10).then(hash => {
+            options.attributes.password = hash;
           });
         }
       }
@@ -50,6 +61,13 @@ module.exports = (sequelize, DataTypes) => {
   User.findByEmail = email => User.findOne({ where: { email } });
 
   User.findUsers = (offset = 0, limit = 2) => User.findAll({ offset, limit });
+
+  User.updateUser = user =>
+    User.update(user, {
+      where: {
+        email: user.email
+      }
+    });
 
   return User;
 };
