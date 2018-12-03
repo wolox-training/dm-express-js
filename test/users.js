@@ -204,6 +204,23 @@ describe('users', () => {
             });
         });
 
+    it('should fail because the token is invalid', done => {
+      chai
+        .request(server)
+        .get('/users')
+        .set(sessionManager.HEADER_NAME, 'whatever')
+        .catch(error => {
+          error.should.have.status(400);
+          error.response.should.be.json;
+          error.response.body.should.have.property('message');
+          error.response.body.should.have.property('internalCode');
+          const { message, internalCode } = error.response.body;
+          message[0].should.equal('The token is not valid');
+          internalCode.should.equal(errors.AUTHENTICATION_ERROR);
+        })
+        .then(() => done());
+    });
+
     it('should sucess and return an array with default limit of two', done => {
       getAll(0, 2).then(() => done());
     });
@@ -226,18 +243,6 @@ describe('users', () => {
         )
       );
 
-    const testingUser = (field, value) => {
-      const user = {
-        firstName: 'firstName',
-        lastName: 'lastName',
-        isAdmin: false,
-        password: 'password',
-        email: 'email@wolox.co'
-      };
-      user[field] = value;
-      return user;
-    };
-
     it('should fail because user is not admin', done => {
       chai
         .request(server)
@@ -245,7 +250,7 @@ describe('users', () => {
         .send({ email: 'unique@wolox.co', password: '123456789' })
         .then(res => {
           buildTest('/admin/users', errors.AUTHENTICATION_ERROR, res.headers[sessionManager.HEADER_NAME])(
-            testingUser(),
+            testUser(),
             'You do not have permission to do this action'
           );
         })
@@ -253,19 +258,19 @@ describe('users', () => {
     });
 
     it('should fail because first name is missing', done => {
-      sendAndTest(testingUser('firstName', undefined), 'The firstName is required').then(() => done());
+      sendAndTest(testUser('firstName', undefined), 'The firstName is required').then(() => done());
     });
 
     it('should fail because last name is missing', done => {
-      sendAndTest(testingUser('lastName', undefined), 'The lastName is required').then(() => done());
+      sendAndTest(testUser('lastName', undefined), 'The lastName is required').then(() => done());
     });
 
     it('should fail because password is missing', done => {
-      sendAndTest(testingUser('password', undefined), 'The password is required').then(() => done());
+      sendAndTest(testUser('password', undefined), 'The password is required').then(() => done());
     });
 
     it('should fail because email is missing', done => {
-      sendAndTest(testingUser('email', undefined), 'The email is required').then(() => done());
+      sendAndTest(testUser('email', undefined), 'The email is required').then(() => done());
     });
 
     it('should be successful and create a new user as admin', done => {
@@ -274,10 +279,10 @@ describe('users', () => {
           .request(server)
           .post('/admin/users')
           .set(sessionManager.HEADER_NAME, loggedResponse.headers[sessionManager.HEADER_NAME])
-          .send(testingUser())
+          .send(testUser())
           .then(res => {
             res.should.have.status(200);
-            User.findByEmail(testingUser().email).then(user => {
+            User.findByEmail(testUser().email).then(user => {
               user.isAdmin.should.be.true;
               dictum.chai(res);
               done();
@@ -287,7 +292,7 @@ describe('users', () => {
     });
 
     it('should be successful and update user as admin', done => {
-      const sendUser = testingUser('email', 'unique@wolox.co');
+      const sendUser = testUser('email', 'unique@wolox.co');
       adminLogin.then(loggedResponse => {
         chai
           .request(server)
