@@ -17,11 +17,15 @@ exports.validateCredentials = (request, response, next) => {
 exports.authenticated = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
-    const { email } = sessionManager.decode(token);
-    User.findByEmail(email).then(user => {
-      if (user) request.userLogged = user;
-      next();
-    });
+    try {
+      const { email } = sessionManager.decode(token);
+      User.findByEmail(email).then(user => {
+        if (user) request.userLogged = user;
+        next();
+      });
+    } catch (error) {
+      return response.status(400).send(errors.authenticationError(['The token is not valid']));
+    }
   } else {
     next();
   }
