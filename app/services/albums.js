@@ -11,3 +11,5 @@ exports.getAll = response =>
       logger.error(error);
       response.status(404).send(errors.albumApiError(['Can not resolve the albums URL']));
     });
+
+exports.getPhotos = () => fetch(`${URL}/photos`).then(res => res.json());
