@@ -19,3 +19,6 @@ exports.albumApiError = messages => internalError(messages, exports.ALBUM_API_ER
 
 exports.BUY_ALBUM_ERROR = 'buy_album_error';
 exports.buyAlbumError = messages => internalError(messages, exports.BUY_ALBUM_ERROR);
+
+exports.LIST_ALBUM_ERROR = 'list_album_error';
+exports.listAlbumError = messages => internalError(messages, exports.LIST_ALBUM_ERROR);

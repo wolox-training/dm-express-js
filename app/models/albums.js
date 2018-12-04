@@ -35,5 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Album.findByAlbumAndUser = (idAlbum, idUser) => Album.findOne({ where: { idAlbum, idUser } });
 
+  Album.findByUserId = idUser => Album.findAll({ where: { idUser } });
+
   return Album;
 };

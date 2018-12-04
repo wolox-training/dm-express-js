@@ -11,4 +11,5 @@ exports.init = app => {
 
   app.get('/albums', [authMw.authenticated], albums.getAll);
   app.post('/albums/:id', [authMw.authenticated], albums.buy);
+  app.get('/users/:user_id/albums', [authMw.authenticated], albums.boughts);
 };
