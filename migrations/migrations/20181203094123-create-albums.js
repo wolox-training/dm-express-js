@@ -1,12 +1,16 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('albums', {
+    return queryInterface.createTable('albums_buyed', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id: {
+      id_album: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      id_user: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
@@ -25,6 +29,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('albums');
+    return queryInterface.dropTable('albums_buyed');
   }
 };

@@ -1,18 +1,21 @@
-const errors = require('../errors'),
-  bcrypt = require('bcryptjs'),
-  User = require('./user');
+const errors = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const Album = sequelize.define(
-    'albums',
+    'albums_buyed',
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      userId: {
-        field: 'user_id',
+      idAlbum: {
+        field: 'id_album',
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      idUser: {
+        field: 'id_user',
         type: DataTypes.INTEGER,
         allowNull: false
       },
@@ -21,9 +24,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       }
     },
-    {}
+    { freezeTableName: true }
   );
 
-  Album.hasMany(User, { as: 'Users' });
-  return User;
+  Album.createModel = album => {
+    return Album.create(album).catch(error => {
+      throw errors.createAlbumError(error);
+    });
+  };
+
+  Album.findByAlbumAndUser = (idAlbum, idUser) => Album.findOne({ where: { idAlbum, idUser } });
+
+  return Album;
 };
