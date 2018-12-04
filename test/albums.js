@@ -31,37 +31,38 @@ const resMocked = [
   }
 ];
 
+const handleError = (error, expectedMessage, expectedInternalCode) => {
+  error.should.have.status(400);
+  const { message, internalCode } = error.response.body;
+  const errMessage = message.constructor === Array ? message[0] : message;
+  errMessage.should.equal(expectedMessage);
+  internalCode.should.equal(expectedInternalCode);
+};
+
 describe('users', () => {
-  describe('/users POST', () => {
-    beforeEach(() => {
-      nock('https://jsonplaceholder.typicode.com')
-        .get('/albums')
-        .reply(200, resMocked);
-    });
-    const login = chai
+  beforeEach(() => {
+    nock('https://jsonplaceholder.typicode.com')
+      .get('/albums')
+      .reply(200, resMocked);
+  });
+  const login = (email = 'admin@wolox.co') =>
+    chai
       .request(server)
       .post('/users/sessions')
-      .send({ email: 'admin@wolox.co', password: '123456789' });
+      .send({ email, password: '123456789' });
+
+  describe('/albums GET', () => {
     it('should fail because user not logged', done => {
       chai
         .request(server)
         .get('/albums')
-        .catch(error => {
-          error.should.have.status(400);
-          error.response.should.be.json;
-          error.response.body.should.have.property('message');
-          error.response.body.should.have.property('internalCode');
-
-          const { message, internalCode } = error.response.body;
-          message.should.be.a('array');
-          message.should.have.lengthOf(1);
-          message[0].should.equal('You must be logged to see all albums');
-          internalCode.should.equal('authentication_error');
-        })
+        .catch(error =>
+          handleError(error, 'You must be logged to see all albums', errors.AUTHENTICATION_ERROR)
+        )
         .then(() => done());
     });
     it('should success and bring some albums', done => {
-      login.then(loggedResponse => {
+      login().then(loggedResponse => {
         chai
           .request(server)
           .get('/albums')
@@ -73,6 +74,49 @@ describe('users', () => {
           })
           .then(() => done());
       });
+    });
+  });
+  describe('/albums/:id POST', () => {
+    const admin = 'admin@wolox.co';
+    const regular = 'unique@wolox.co';
+    const fetch = (email, method = 'post', endpoint) =>
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email, password: '123456789' })
+        .then(loggedResponse =>
+          chai
+            .request(server)
+            [method](`/albums${endpoint}`)
+            .set(sessionManager.HEADER_NAME, loggedResponse.headers[sessionManager.HEADER_NAME])
+        );
+    it('should sucess when buying a new album', done => {
+      fetch(admin, 'post', `/${resMocked[0].id}`)
+        .then(res => {
+          res.should.have.status(200);
+          const { idAlbum, idUser } = res.body;
+          idAlbum.should.equal(resMocked[0].id);
+          idUser.should.equal(10);
+          dictum.chai(res);
+        })
+        .then(() => done());
+    });
+    it('should fail because album does not exist', done => {
+      fetch(admin, 'post', `/5`)
+        .catch(error => handleError(error, 'There is not album with id 5', errors.BUY_ALBUM_ERROR))
+        .then(() => done());
+    });
+    it('should fail because user alredy bougth the album', done => {
+      fetch(regular, 'post', `/1`)
+        .catch(error => handleError(error, 'The user already bought this album', errors.BUY_ALBUM_ERROR))
+        .then(() => done());
+    });
+    it('should fail because user not logged', done => {
+      chai
+        .request(server)
+        .post('/albums/1')
+        .catch(error => handleError(error, 'You must be logged to buy albums', errors.AUTHENTICATION_ERROR))
+        .then(() => done());
     });
   });
 });
