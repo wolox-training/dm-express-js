@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs'),
 
 exports.execute = () => {
   const User = models.users;
-  const Album = models.albums_buyed;
+  const Album = models.albums_bought;
   const password = '123456789';
   const data = [];
   data.push(

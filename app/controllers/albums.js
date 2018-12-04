@@ -1,7 +1,7 @@
 const logger = require('../logger'),
   albumService = require('../services/albums'),
   errors = require('../errors'),
-  Album = require('../models').albums_buyed;
+  Album = require('../models').albums_bought;
 
 exports.getAll = (request, response, next) => {
   if (!request.userLogged)

@@ -4,8 +4,6 @@ const chai = require('chai'),
   should = chai.should(),
   sessionManager = require('../app/services/sessionManager'),
   errors = require('../app/errors'),
-  User = require('../app/models').users,
-  errorMessage = require('../config').common.errorMessage,
   nock = require('nock');
 
 const resMocked = [

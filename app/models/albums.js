@@ -2,7 +2,7 @@ const errors = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const Album = sequelize.define(
-    'albums_buyed',
+    'albums_bought',
     {
       id: {
         type: DataTypes.INTEGER,
