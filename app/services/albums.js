@@ -9,5 +9,5 @@ exports.getAll = response =>
     .then(res => res.json())
     .catch(error => {
       logger.error(error);
-      response.status(404).send(errors.bookError(['Can not resolve the albums URL']));
+      response.status(404).send(errors.albumApiError(['Can not resolve the albums URL']));
     });
