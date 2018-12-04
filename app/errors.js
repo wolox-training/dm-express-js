@@ -13,3 +13,6 @@ exports.createUserError = messages => internalError(messages, exports.CREATE_USE
 
 exports.AUTHENTICATION_ERROR = 'authentication_error';
 exports.authenticationError = messages => internalError(messages, exports.AUTHENTICATION_ERROR);
+
+exports.ALBUM_API_ERROR = 'album_api_error';
+exports.albumApiError = messages => internalError(messages, exports.ALBUM_API_ERROR);
