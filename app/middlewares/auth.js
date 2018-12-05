@@ -1,7 +1,7 @@
 const errors = require('../errors'),
   sessionManager = require('../services/sessionManager'),
   User = require('../models').users,
-  userMW = require('./users'),
+  errorMessage = require('../../config').common.errorMessage,
   { regexWoloxEmail } = require('../../config').common.business;
 
 exports.validateCredentials = (request, response, next) => {
@@ -37,4 +37,10 @@ exports.requireAdmin = (request, response, next) => {
       .status(400)
       .send(errors.authenticationError(['You do not have permission to do this action']));
   else next();
+};
+
+exports.logRequired = (request, response, next) => {
+  if (!request.userLogged)
+    return response.status(400).send(errors.authenticationError([errorMessage.logRequired]));
+  next();
 };
