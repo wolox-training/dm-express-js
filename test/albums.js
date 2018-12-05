@@ -4,6 +4,7 @@ const chai = require('chai'),
   should = chai.should(),
   sessionManager = require('../app/services/sessionManager'),
   errors = require('../app/errors'),
+  errorMessage = require('../config').common.errorMessage,
   nock = require('nock');
 
 const resMocked = [
@@ -114,7 +115,7 @@ describe('users', () => {
       chai
         .request(server)
         .post('/albums/1')
-        .catch(error => handleError(error, 'You must be logged to buy albums', errors.AUTHENTICATION_ERROR))
+        .catch(error => handleError(error, errorMessage.logRequired, errors.AUTHENTICATION_ERROR))
         .then(() => done());
     });
   });
@@ -125,9 +126,7 @@ describe('users', () => {
       chai
         .request(server)
         .get(endpoint(1))
-        .catch(error =>
-          handleError(error, 'You must be logged to see the purchased albums', errors.AUTHENTICATION_ERROR)
-        )
+        .catch(error => handleError(error, errorMessage.logRequired, errors.AUTHENTICATION_ERROR))
         .then(() => done());
     });
     it('should fail because the user is trying to find albums from other user', done => {
@@ -154,7 +153,8 @@ describe('users', () => {
       fetch(admin, 'get', endpoint(11))
         .then(res => {
           res.should.have.status(200);
-          res.body[0].should.deep.equal(resMocked[0]);
+          res.body.should.be.a('array');
+          res.body.should.have.lengthOf(1);
           dictum.chai(res);
         })
         .then(() => done());
@@ -163,7 +163,8 @@ describe('users', () => {
       fetch(regular, 'get', endpoint(11))
         .then(res => {
           res.should.have.status(200);
-          res.body[0].should.deep.equal(resMocked[0]);
+          res.body.should.be.a('array');
+          res.body.should.have.lengthOf(1);
           dictum.chai(res);
         })
         .then(() => done());
