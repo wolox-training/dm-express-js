@@ -10,8 +10,6 @@ exports.getAll = (request, response, next) => {
 };
 
 exports.buy = (request, response) => {
-  if (!request.userLogged)
-    return response.status(400).send(errors.authenticationError('You must be logged to buy albums'));
   const handleError = (err, message) => {
     logger.error(err);
     response.status(400).send(errors.buyAlbumError(message));
@@ -46,22 +44,11 @@ exports.buy = (request, response) => {
 };
 
 exports.boughts = (request, response) => {
-  if (!request.userLogged)
-    return response
-      .status(400)
-      .send(errors.authenticationError(['You must be logged to see the purchased albums']));
-  if (!request.userLogged.isAdmin && Number(request.params.user_id) !== request.userLogged.id)
-    return response
-      .status(400)
-      .send(errors.listAlbumError('You are not allowed to see albums purchased from other users'));
   Album.findByUserId(request.params.user_id)
     .then(purchasedAlbums => {
       if (purchasedAlbums.length === 0)
         return response.status(200).send('The user has not bought any album yet');
-      albumService
-        .getAll(response)
-        .then(albums => albums.filter(album => purchasedAlbums.find(pAlbum => pAlbum.idAlbum === album.id)))
-        .then(albums => response.status(200).send(albums));
+      response.status(200).send(purchasedAlbums);
     })
     .catch(error => {
       logger.error(error);
