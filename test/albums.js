@@ -2,6 +2,7 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   should = chai.should(),
+  errorMessage = require('../config').common.errorMessage,
   sessionManager = require('../app/services/sessionManager'),
   errors = require('../app/errors'),
   nock = require('nock');
@@ -38,11 +39,6 @@ const handleError = (error, expectedMessage, expectedInternalCode) => {
 };
 
 describe('users', () => {
-  beforeEach(() => {
-    nock('https://jsonplaceholder.typicode.com')
-      .get('/albums')
-      .reply(200, resMocked);
-  });
   const login = (email = 'admin@wolox.co') =>
     chai
       .request(server)
@@ -50,6 +46,11 @@ describe('users', () => {
       .send({ email, password: '123456789' });
 
   describe('/albums GET', () => {
+    beforeEach(() => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums')
+        .reply(200, resMocked);
+    });
     it('should fail because user not logged', done => {
       chai
         .request(server)
@@ -77,6 +78,11 @@ describe('users', () => {
   describe('/albums/:id POST', () => {
     const admin = 'admin@wolox.co';
     const regular = 'unique@wolox.co';
+    beforeEach(() => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums/1')
+        .reply(200, resMocked[0]);
+    });
     const fetch = (email, method = 'post', endpoint) =>
       chai
         .request(server)
@@ -100,6 +106,9 @@ describe('users', () => {
         .then(() => done());
     });
     it('should fail because album does not exist', done => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums/5')
+        .reply(200, {});
       fetch(admin, 'post', `/5`)
         .catch(error => handleError(error, 'There is not album with id 5', errors.BUY_ALBUM_ERROR))
         .then(() => done());
@@ -113,7 +122,7 @@ describe('users', () => {
       chai
         .request(server)
         .post('/albums/1')
-        .catch(error => handleError(error, 'You must be logged to buy albums', errors.AUTHENTICATION_ERROR))
+        .catch(error => handleError(error, errorMessage.logRequired, errors.AUTHENTICATION_ERROR))
         .then(() => done());
     });
   });
