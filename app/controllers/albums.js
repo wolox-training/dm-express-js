@@ -6,7 +6,7 @@ const logger = require('../logger'),
 exports.getAll = (request, response, next) => {
   if (!request.userLogged)
     return response.status(400).send(errors.authenticationError(['You must be logged to see all albums']));
-  albumService.getAll(response).then(data => response.status(200).send(data));
+  albumService.getAll().then(data => response.status(200).send(data));
 };
 
 exports.buy = (request, response) => {
@@ -16,10 +16,9 @@ exports.buy = (request, response) => {
   };
   const id = Number(request.params.id);
   albumService
-    .getAll(response)
-    .then(data => {
-      const album = data.find(a => a.id === id);
-      if (album) {
+    .getAlbumById(id)
+    .then(album => {
+      if (album.id) {
         Album.findByAlbumAndUser(album.id, request.userLogged.id)
           .then(albums => {
             if (albums)

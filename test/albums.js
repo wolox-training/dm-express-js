@@ -2,9 +2,9 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   should = chai.should(),
+  errorMessage = require('../config').common.errorMessage,
   sessionManager = require('../app/services/sessionManager'),
   errors = require('../app/errors'),
-  errorMessage = require('../config').common.errorMessage,
   nock = require('nock');
 
 const resMocked = [
@@ -33,8 +33,8 @@ const resMocked = [
 const handleError = (error, expectedMessage, expectedInternalCode) => {
   error.should.have.status(400);
   const { message, internalCode } = error.response.body;
-  const errMessage = message.constructor === Array ? message[0] : message;
-  errMessage.should.equal(expectedMessage);
+  const actualErrorMessage = message.constructor === Array ? message[0] : message;
+  actualErrorMessage.should.equal(expectedMessage);
   internalCode.should.equal(expectedInternalCode);
 };
 
@@ -53,11 +53,6 @@ const fetch = (email, method = 'post', endpoint) =>
     );
 
 describe('users', () => {
-  beforeEach(() => {
-    nock('https://jsonplaceholder.typicode.com')
-      .get('/albums')
-      .reply(200, resMocked);
-  });
   const login = (email = 'admin@wolox.co') =>
     chai
       .request(server)
@@ -65,6 +60,11 @@ describe('users', () => {
       .send({ email, password: '123456789' });
 
   describe('/albums GET', () => {
+    beforeEach(() => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums')
+        .reply(200, resMocked);
+    });
     it('should fail because user not logged', done => {
       chai
         .request(server)
@@ -90,7 +90,12 @@ describe('users', () => {
     });
   });
   describe('/albums/:id POST', () => {
-    it('should success when buying a new album', done => {
+    beforeEach(() => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums/1')
+        .reply(200, resMocked[0]);
+    });
+    it('should sucess when buying a new album', done => {
       fetch(admin, 'post', `/albums/${resMocked[0].id}`)
         .then(res => {
           res.should.have.status(200);
@@ -102,6 +107,9 @@ describe('users', () => {
         .then(() => done());
     });
     it('should fail because album does not exist', done => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get('/albums/5')
+        .reply(200, {});
       fetch(admin, 'post', `/albums/5`)
         .catch(error => handleError(error, 'There is not album with id 5', errors.BUY_ALBUM_ERROR))
         .then(() => done());
