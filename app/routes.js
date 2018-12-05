@@ -17,5 +17,5 @@ exports.init = app => {
     [authMw.authenticated, authMw.logRequired, albumMw.checkRequestedId],
     albums.boughts
   );
-  app.get('/users/albums/:id/photos', [authMw.authenticated], albums.photo);
+  app.get('/users/albums/:id/photos', [authMw.authenticated, authMw.logRequired], albums.photo);
 };
