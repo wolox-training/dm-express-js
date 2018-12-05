@@ -33,8 +33,8 @@ const resMocked = [
 const handleError = (error, expectedMessage, expectedInternalCode) => {
   error.should.have.status(400);
   const { message, internalCode } = error.response.body;
-  const errMessage = message.constructor === Array ? message[0] : message;
-  errMessage.should.equal(expectedMessage);
+  const actualErrorMessage = message.constructor === Array ? message[0] : message;
+  actualErrorMessage.should.equal(expectedMessage);
   internalCode.should.equal(expectedInternalCode);
 };
 
