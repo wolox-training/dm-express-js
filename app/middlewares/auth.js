@@ -24,7 +24,10 @@ exports.authenticated = (request, response, next) => {
         next();
       });
     } catch (error) {
-      return response.status(400).send(errors.authenticationError(['The token is not valid']));
+      response.status(400);
+      if (error.name === 'TokenExpiredError')
+        return response.send(errors.authenticationError(['Your session has expired']));
+      return response.send(errors.authenticationError(['The token is not valid']));
     }
   } else {
     next();
