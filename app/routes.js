@@ -10,5 +10,5 @@ exports.init = app => {
   app.post('/admin/users', [authMw.authenticated, authMw.requireAdmin, userMw.validate], users.createAdmin);
 
   app.get('/albums', [authMw.authenticated], albums.getAll);
-  app.post('/albums/:id', [authMw.authenticated], albums.buy);
+  app.post('/albums/:id', [authMw.authenticated, authMw.logRequired], albums.buy);
 };
