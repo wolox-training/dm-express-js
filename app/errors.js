@@ -16,3 +16,6 @@ exports.authenticationError = messages => internalError(messages, exports.AUTHEN
 
 exports.ALBUM_API_ERROR = 'album_api_error';
 exports.albumApiError = messages => internalError(messages, exports.ALBUM_API_ERROR);
+
+exports.BUY_ALBUM_ERROR = 'buy_album_error';
+exports.buyAlbumError = messages => internalError(messages, exports.BUY_ALBUM_ERROR);

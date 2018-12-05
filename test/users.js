@@ -48,9 +48,8 @@ describe('users', () => {
     });
 
     it('should fail because email is not unique', done => {
-      User.createModel(testUser()).then(userCreated => {
-        sendAndTest(testUser(), errorMessage.uniqueEmail).then(() => done());
-      });
+      const user = testUser('email', 'unique@wolox.co');
+      sendAndTest(user, errorMessage.uniqueEmail).then(() => done());
     });
 
     it('should fail because password is less than 8 characters', done => {

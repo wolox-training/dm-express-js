@@ -4,10 +4,6 @@ const logger = require('../logger'),
 
 const URL = 'https://jsonplaceholder.typicode.com';
 
-exports.getAll = response =>
-  fetch(`${URL}/albums`)
-    .then(res => res.json())
-    .catch(error => {
-      logger.error(error);
-      response.status(404).send(errors.albumApiError(['Can not resolve the albums URL']));
-    });
+exports.getAll = () => fetch(`${URL}/albums`).then(res => res.json());
+
+exports.getAlbumById = albumId => fetch(`${URL}/albums/${albumId}`).then(res => res.json());
