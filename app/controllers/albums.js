@@ -56,8 +56,6 @@ exports.boughts = (request, response) => {
 };
 
 exports.photo = (request, response) => {
-  if (!request.userLogged)
-    return response.status(400).send(errors.authenticationError(['You must be logged to see the photos']));
   const handleError = (err, message) => {
     logger.error(err);
     response.status(400).send(errors.buyAlbumError(message));
@@ -66,11 +64,8 @@ exports.photo = (request, response) => {
     .then(purchasedAlbum => {
       if (purchasedAlbum) {
         albumService
-          .getPhotos()
-          .then(photos => {
-            const photosFiltered = photos.filter(photo => purchasedAlbum.id === photo.albumId);
-            response.status(200).send(photosFiltered);
-          })
+          .getPhotos(purchasedAlbum.id)
+          .then(photos => response.status(200).send(photos))
           .catch(error => handleError(error, errors.listPhotosError(`Can't fetch the album URL`)));
       } else response.status(200).send(`The user has not purchased this album`);
     })
