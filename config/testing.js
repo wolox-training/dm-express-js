@@ -6,7 +6,8 @@ exports.config = {
       name: process.env.NODE_API_DB_NAME_TEST
     },
     session: {
-      secret: 'some-super-secret'
+      secret: 'some-super-secret',
+      expiryTime: 3
     }
   }
 };

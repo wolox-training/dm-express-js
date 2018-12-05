@@ -157,10 +157,8 @@ describe('users', () => {
         .then(res => {
           res.should.have.status(200);
           res.should.be.json;
-          res.body.should.have.property('firstName');
-          res.body.should.have.property('lastName');
-          res.body.should.have.property('email');
-          res.body.should.have.property('password');
+          res.body.should.have.property('user');
+          res.body.should.have.property('session');
           res.headers.should.have.property(sessionManager.HEADER_NAME);
           dictum.chai(res);
         })

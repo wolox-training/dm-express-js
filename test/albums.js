@@ -248,4 +248,22 @@ describe('users', () => {
         .then(() => done());
     });
   });
+  describe('Expire Token Test', () => {
+    it('should fail because session has expire', done => {
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email: regular, password: '123456789' })
+        .then(loggedResponse => {
+          setTimeout(() => {
+            chai
+              .request(server)
+              .get('/users/albums/1/photos')
+              .set(sessionManager.HEADER_NAME, loggedResponse.headers[sessionManager.HEADER_NAME])
+              .catch(error => handleError(error, 'Your session has expired', errors.AUTHENTICATION_ERROR))
+              .then(() => done());
+          }, 3200);
+        });
+    });
+  });
 });
