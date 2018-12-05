@@ -53,7 +53,8 @@ const config = {
     errorMessage: {
       invalidPassword: 'The password is invalid. It must be alphanumeric and a minimum of 8 characters',
       uniqueEmail: 'The email must be unique',
-      invalidEmail: 'The email has an invalid format'
+      invalidEmail: 'The email has an invalid format',
+      logRequired: 'You must be logged to use this service'
     },
     business: {
       regexWoloxEmail: /[\w\d._]+@wolox[\w.]+/
