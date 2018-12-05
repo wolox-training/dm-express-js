@@ -9,5 +9,3 @@ exports.HEADER_NAME = config.common.session.header_name;
 exports.encode = payload => jwt.sign(payload, SECRET, { expiresIn: EXPIRY_TIME });
 
 exports.decode = toDecode => jwt.verify(toDecode, SECRET);
-
-exports.sign = payload => jwt.sign(payload, SECRET, { expiresIn: EXPIRY_TIME });
