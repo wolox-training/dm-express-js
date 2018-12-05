@@ -222,9 +222,7 @@ describe('users', () => {
       chai
         .request(server)
         .get(`/users/albums/1/photos`)
-        .catch(error =>
-          handleError(error, 'You must be logged to see the photos', errors.AUTHENTICATION_ERROR)
-        )
+        .catch(error => handleError(error, errorMessage.logRequired, errors.AUTHENTICATION_ERROR))
         .then(() => done());
     });
     it('should success and return a message telling that the user does not purchased the album', done => {
@@ -238,8 +236,8 @@ describe('users', () => {
     });
     it('should success when listing photos of a purchased album', done => {
       nock('https://jsonplaceholder.typicode.com')
-        .get('/photos')
-        .reply(200, photosMocked);
+        .get(`/photos?albumId=1`)
+        .reply(200, photosMocked.slice(0, 3));
       test(1)
         .then(res => {
           res.should.have.status(200);
