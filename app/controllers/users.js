@@ -29,7 +29,7 @@ exports.authenticate = (request, response, next) => {
       if (user) {
         bcrypt.compare(password, user.password).then(isValid => {
           if (isValid) {
-            const authentication = sessionManager.encode({ email, password });
+            const authentication = sessionManager.encode({ email, date: Date.now() });
             response
               .status(200)
               .set(sessionManager.HEADER_NAME, authentication)
@@ -80,4 +80,13 @@ exports.createAdmin = (request, response) => {
       exports.create(request, response);
     }
   });
+};
+
+exports.logOut = ({ userLogged: { email } }, response) => {
+  User.invalidateToken(email)
+    .then(() => response.status(200).send(`Sessions invalidated for ${email}`))
+    .catch(error => {
+      logger.error(error);
+      response.status(400).send(errors.createUserError('Unexpected data base error'));
+    });
 };
