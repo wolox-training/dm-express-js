@@ -18,4 +18,5 @@ exports.init = app => {
     albums.boughts
   );
   app.get('/users/albums/:id/photos', [authMw.authenticated, authMw.logRequired], albums.photo);
+  app.post('/users/sessions/invalidate_all', [authMw.authenticated, authMw.logRequired], users.logOut);
 };
