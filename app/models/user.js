@@ -75,8 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     });
 
-  User.invalidateToken = email =>
-    User.findByEmail(email).then(user => user.update({ invalidTokenDate: Date.now() }));
+  User.invalidateToken = user => user.update({ invalidTokenDate: Date.now() });
 
   return User;
 };

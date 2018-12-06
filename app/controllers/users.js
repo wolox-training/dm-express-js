@@ -82,9 +82,9 @@ exports.createAdmin = (request, response) => {
   });
 };
 
-exports.logOut = ({ userLogged: { email } }, response) => {
-  User.invalidateToken(email)
-    .then(() => response.status(200).send(`Sessions invalidated for ${email}`))
+exports.logOut = ({ userLogged }, response) => {
+  User.invalidateToken(userLogged)
+    .then(() => response.status(200).send(`Sessions invalidated for ${userLogged.email}`))
     .catch(error => {
       logger.error(error);
       response.status(400).send(errors.createUserError('Unexpected data base error'));
