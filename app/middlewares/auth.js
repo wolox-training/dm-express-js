@@ -21,7 +21,7 @@ exports.authenticated = (request, response, next) => {
       const { email, date } = sessionManager.decode(token);
       User.findByEmail(email).then(user => {
         if (date < user.invalidTokenDate)
-          return response.status(400).send(errors.authenticationError(['Your session has been invalided']));
+          return response.status(400).send(errors.authenticationError(['Your session has been invalidated']));
         if (user) request.userLogged = user;
         next();
       });
