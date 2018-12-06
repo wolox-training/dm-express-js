@@ -41,3 +41,16 @@ exports.buy = (request, response) => {
     })
     .catch(error => handleError(error, 'Unexpected error when fetching'));
 };
+
+exports.boughts = (request, response) => {
+  Album.findByUserId(request.params.user_id)
+    .then(purchasedAlbums => {
+      if (purchasedAlbums.length === 0)
+        return response.status(200).send('The user has not bought any album yet');
+      response.status(200).send(purchasedAlbums);
+    })
+    .catch(error => {
+      logger.error(error);
+      response.status(400).send(errors.listAlbumError('Unexpected error'));
+    });
+};
