@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         default: false
+      },
+      invalidTokenDate: {
+        field: 'invalid_token_date',
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.fn('NOW')
       }
     },
     {
@@ -68,6 +74,9 @@ module.exports = (sequelize, DataTypes) => {
         email: user.email
       }
     });
+
+  User.invalidateToken = email =>
+    User.findByEmail(email).then(user => user.update({ invalidTokenDate: Date.now() }));
 
   return User;
 };
