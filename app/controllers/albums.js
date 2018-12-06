@@ -54,3 +54,22 @@ exports.boughts = (request, response) => {
       response.status(400).send(errors.listAlbumError('Unexpected error'));
     });
 };
+
+exports.photo = (request, response) => {
+  const handleError = (err, message) => {
+    logger.error(err);
+    response.status(400).send(errors.buyAlbumError(message));
+  };
+  Album.findByAlbumAndUser(request.params.id, request.userLogged.id)
+    .then(purchasedAlbum => {
+      if (purchasedAlbum) {
+        albumService
+          .getPhotos(purchasedAlbum.id)
+          .then(photos => response.status(200).send(photos))
+          .catch(error => handleError(error, errors.listPhotosError(`Can't fetch the album URL`)));
+      } else response.status(200).send(`The user has not purchased this album`);
+    })
+    .catch(error =>
+      handleError(error, errors.listPhotosError(`Unexpected error when listing the purchased albums`))
+    );
+};

@@ -30,6 +30,44 @@ const resMocked = [
   }
 ];
 
+const photosMocked = [
+  {
+    albumId: 1,
+    id: 1,
+    title: 'accusamus beatae ad facilis cum similique qui sunt',
+    url: 'https://via.placeholder.com/600/92c952',
+    thumbnailUrl: 'https://via.placeholder.com/150/92c952'
+  },
+  {
+    albumId: 1,
+    id: 2,
+    title: 'reprehenderit est deserunt velit ipsam',
+    url: 'https://via.placeholder.com/600/771796',
+    thumbnailUrl: 'https://via.placeholder.com/150/771796'
+  },
+  {
+    albumId: 1,
+    id: 3,
+    title: 'officia porro iure quia iusto qui ipsa ut modi',
+    url: 'https://via.placeholder.com/600/24f355',
+    thumbnailUrl: 'https://via.placeholder.com/150/24f355'
+  },
+  {
+    albumId: 2,
+    id: 4,
+    title: 'culpa odio esse rerum omnis laboriosam voluptate repudiandae',
+    url: 'https://via.placeholder.com/600/d32776',
+    thumbnailUrl: 'https://via.placeholder.com/150/d32776'
+  },
+  {
+    albumId: 3,
+    id: 5,
+    title: 'natus nisi omnis corporis facere molestiae rerum in',
+    url: 'https://via.placeholder.com/600/f66b97',
+    thumbnailUrl: 'https://via.placeholder.com/150/f66b97'
+  }
+];
+
 const handleError = (error, expectedMessage, expectedInternalCode) => {
   error.should.have.status(400);
   const { message, internalCode } = error.response.body;
@@ -173,6 +211,38 @@ describe('users', () => {
           res.should.have.status(200);
           res.body.should.be.a('array');
           res.body.should.have.lengthOf(1);
+          dictum.chai(res);
+        })
+        .then(() => done());
+    });
+  });
+  describe('/users/:user_id/albums GET', () => {
+    const test = id => fetch(regular, 'get', `/users/albums/${id}/photos`);
+    it('should fail because user not logged', done => {
+      chai
+        .request(server)
+        .get(`/users/albums/1/photos`)
+        .catch(error => handleError(error, errorMessage.logRequired, errors.AUTHENTICATION_ERROR))
+        .then(() => done());
+    });
+    it('should success and return a message telling that the user does not purchased the album', done => {
+      test(2)
+        .then(res => {
+          res.should.have.status(200);
+          res.text.should.equal('The user has not purchased this album');
+          dictum.chai(res);
+        })
+        .then(() => done());
+    });
+    it('should success when listing photos of a purchased album', done => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get(`/photos?albumId=1`)
+        .reply(200, photosMocked.slice(0, 3));
+      test(1)
+        .then(res => {
+          res.should.have.status(200);
+          res.body.should.be.a('array');
+          res.body.should.have.lengthOf(3);
           dictum.chai(res);
         })
         .then(() => done());

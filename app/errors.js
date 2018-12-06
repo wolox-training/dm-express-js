@@ -22,3 +22,6 @@ exports.buyAlbumError = messages => internalError(messages, exports.BUY_ALBUM_ER
 
 exports.LIST_ALBUM_ERROR = 'list_album_error';
 exports.listAlbumError = messages => internalError(messages, exports.LIST_ALBUM_ERROR);
+
+exports.LIST_PHOTOS_ERROR = 'list_photos_error';
+exports.listPhotosError = messages => internalError(messages, exports.LIST_PHOTOS_ERROR);
