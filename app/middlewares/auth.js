@@ -18,8 +18,10 @@ exports.authenticated = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
     try {
-      const { email } = sessionManager.decode(token);
+      const { email, date } = sessionManager.decode(token);
       User.findByEmail(email).then(user => {
+        if (date < user.invalidTokenDate)
+          return response.status(400).send(errors.authenticationError(['Your session has been invalided']));
         if (user) request.userLogged = user;
         next();
       });
