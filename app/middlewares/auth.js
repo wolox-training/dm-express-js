@@ -18,13 +18,18 @@ exports.authenticated = (request, response, next) => {
   const token = request.headers[sessionManager.HEADER_NAME];
   if (token) {
     try {
-      const { email } = sessionManager.decode(token);
+      const { email, date } = sessionManager.decode(token);
       User.findByEmail(email).then(user => {
+        if (date < user.invalidTokenDate)
+          return response.status(400).send(errors.authenticationError(['Your session has been invalidated']));
         if (user) request.userLogged = user;
         next();
       });
     } catch (error) {
-      return response.status(400).send(errors.authenticationError(['The token is not valid']));
+      response.status(400);
+      if (error.name === 'TokenExpiredError')
+        return response.send(errors.authenticationError(['Your session has expired']));
+      return response.send(errors.authenticationError(['The token is not valid']));
     }
   } else {
     next();

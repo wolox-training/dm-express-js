@@ -1,9 +1,12 @@
 const logger = require('../logger'),
   bcrypt = require('bcryptjs'),
   sessionManager = require('../services/sessionManager'),
+  config = require('../../config'),
   User = require('../models').users,
   userMw = require('../middlewares/users'),
   errors = require('../errors');
+
+const EXPIRY_TIME = config.common.session.expiryTime || 1;
 
 exports.create = ({ user }, response, next) => {
   User.createModel(user)
@@ -26,11 +29,11 @@ exports.authenticate = (request, response, next) => {
       if (user) {
         bcrypt.compare(password, user.password).then(isValid => {
           if (isValid) {
-            const authentication = sessionManager.encode({ email, password });
+            const authentication = sessionManager.encode({ email, date: Date.now() });
             response
               .status(200)
               .set(sessionManager.HEADER_NAME, authentication)
-              .send(user);
+              .send({ user, session: `Your session will expire in ${EXPIRY_TIME} seconds` });
             logger.info(`The user with email ${user.email} is now logged`);
           } else {
             response.status(400).send(errors.authenticationError(['The password is not correct']));
@@ -77,4 +80,13 @@ exports.createAdmin = (request, response) => {
       exports.create(request, response);
     }
   });
+};
+
+exports.logOut = ({ userLogged }, response) => {
+  User.invalidateToken(userLogged)
+    .then(() => response.status(200).send(`Sessions invalidated for ${userLogged.email}`))
+    .catch(error => {
+      logger.error(error);
+      response.status(400).send(errors.createUserError('Unexpected data base error'));
+    });
 };

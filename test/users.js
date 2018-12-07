@@ -157,10 +157,8 @@ describe('users', () => {
         .then(res => {
           res.should.have.status(200);
           res.should.be.json;
-          res.body.should.have.property('firstName');
-          res.body.should.have.property('lastName');
-          res.body.should.have.property('email');
-          res.body.should.have.property('password');
+          res.body.should.have.property('user');
+          res.body.should.have.property('session');
           res.headers.should.have.property(sessionManager.HEADER_NAME);
           dictum.chai(res);
         })
@@ -229,13 +227,15 @@ describe('users', () => {
   });
 
   describe('/admin/users POST', () => {
-    const adminLogin = chai
-      .request(server)
-      .post('/users/sessions')
-      .send({ email: 'admin@wolox.co', password: '123456789' });
+    const adminLogin = () => {
+      return chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email: 'admin@wolox.co', password: '123456789' });
+    };
 
     const sendAndTest = (data, message) =>
-      adminLogin.then(response =>
+      adminLogin().then(response =>
         buildTest('/admin/users', errors.CREATE_USER_ERROR, response.headers[sessionManager.HEADER_NAME])(
           data,
           message
@@ -273,7 +273,7 @@ describe('users', () => {
     });
 
     it('should be successful and create a new user as admin', done => {
-      adminLogin.then(loggedResponse => {
+      adminLogin().then(loggedResponse => {
         chai
           .request(server)
           .post('/admin/users')
@@ -292,7 +292,7 @@ describe('users', () => {
 
     it('should be successful and update user as admin', done => {
       const sendUser = testUser('email', 'unique@wolox.co');
-      adminLogin.then(loggedResponse => {
+      adminLogin().then(loggedResponse => {
         chai
           .request(server)
           .post('/admin/users')

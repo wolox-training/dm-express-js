@@ -248,4 +248,57 @@ describe('users', () => {
         .then(() => done());
     });
   });
+  describe('Expire Token Test', () => {
+    it('should fail because session has expire', done => {
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email: regular, password: '123456789' })
+        .then(loggedResponse => {
+          setTimeout(() => {
+            chai
+              .request(server)
+              .get('/users/albums/1/photos')
+              .set(sessionManager.HEADER_NAME, loggedResponse.headers[sessionManager.HEADER_NAME])
+              .catch(error => handleError(error, 'Your session has expired', errors.AUTHENTICATION_ERROR))
+              .then(() => done());
+          }, 3200);
+        });
+    });
+
+    it('should fail because the session has been invalidated', done => {
+      nock('https://jsonplaceholder.typicode.com')
+        .get(`/photos?albumId=1`)
+        .reply(200, photosMocked.slice(0, 3));
+      chai
+        .request(server)
+        .post('/users/sessions')
+        .send({ email: regular, password: '123456789' })
+        .then(loggedResponse => {
+          const token = loggedResponse.headers[sessionManager.HEADER_NAME];
+          chai
+            .request(server)
+            .get('/users/albums/1/photos')
+            .set(sessionManager.HEADER_NAME, token)
+            .then(successful => {
+              successful.should.have.status(200);
+              chai
+                .request(server)
+                .post('/users/sessions/invalidate_all')
+                .set(sessionManager.HEADER_NAME, token)
+                .then(loggedOut => {
+                  loggedOut.should.have.status(200);
+                  chai
+                    .request(server)
+                    .get('/users/albums/1/photos')
+                    .set(sessionManager.HEADER_NAME, token)
+                    .catch(error =>
+                      handleError(error, 'Your session has been invalidated', errors.AUTHENTICATION_ERROR)
+                    )
+                    .then(() => done());
+                });
+            });
+        });
+    });
+  });
 });
